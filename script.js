@@ -16,6 +16,9 @@ let level = 1;
 let currentDirection = { x: 0, y: 0 };
 let canMove = true;
 
+let player;
+let enemies;
+
 
 let maze = [
     ['*','*','*','*','*','*','*','*','*','*'],
@@ -44,6 +47,7 @@ function addGhost() {
 
 
 function buildMaze() {
+
     main.innerHTML = '';
 
     maze.forEach(row => {
@@ -65,18 +69,11 @@ function buildMaze() {
     enemies = document.querySelectorAll('.enemy');
 }
 
-addGhost();
-addGhost();
-addGhost();
 
+addGhost();
+addGhost();
+addGhost();
 buildMaze();
-
-
-let player = document.querySelector('#player');
-let enemies = document.querySelectorAll('.enemy');
-
-let playerTop = 0;
-let playerLeft = 0;
 
 
 const livesDisplay = document.createElement('div');
@@ -101,10 +98,12 @@ function saveScore() {
     scores = scores.slice(0, 5);
 
     localStorage.setItem("pacmanScores", JSON.stringify(scores));
+
     displayLeaderboard();
 }
 
 function displayLeaderboard() {
+
     let scores = JSON.parse(localStorage.getItem("pacmanScores")) || [];
 
     leaderboardDiv.innerHTML = "<h3>Leaderboard</h3>";
@@ -132,43 +131,11 @@ document.addEventListener('keydown', (e) => {
     player.className = '';
     player.id = 'player';
 
-    if (e.key === 'ArrowUp') {
-        currentDirection = { x: 0, y: -1 };
-        player.classList.add('up');
-    }
-
-    if (e.key === 'ArrowDown') {
-        currentDirection = { x: 0, y: 1 };
-        player.classList.add('down');
-    }
-
-    if (e.key === 'ArrowLeft') {
-        currentDirection = { x: -1, y: 0 };
-        player.classList.add('left');
-    }
-
-    if (e.key === 'ArrowRight') {
-        currentDirection = { x: 1, y: 0 };
-        player.classList.add('right');
-    }
+    if (e.key === 'ArrowUp') currentDirection = { x: 0, y: -1 };
+    if (e.key === 'ArrowDown') currentDirection = { x: 0, y: 1 };
+    if (e.key === 'ArrowLeft') currentDirection = { x: -1, y: 0 };
+    if (e.key === 'ArrowRight') currentDirection = { x: 1, y: 0 };
 });
-
-
-document.getElementById('lbttn').onclick = () => {
-    currentDirection = { x: -1, y: 0 };
-};
-
-document.getElementById('rbttn').onclick = () => {
-    currentDirection = { x: 1, y: 0 };
-};
-
-document.getElementById('ubttn').onclick = () => {
-    currentDirection = { x: 0, y: -1 };
-};
-
-document.getElementById('dbttn').onclick = () => {
-    currentDirection = { x: 0, y: 1 };
-};
 
 
 function isColliding(a, b) {
@@ -209,14 +176,12 @@ function checkCollisions() {
         if (isColliding(player, point)) {
             point.remove();
             score++;
-            scoreDisplay.textContent = "Score: " + score;
+            if (scoreDisplay) scoreDisplay.textContent = "Score: " + score;
         }
     });
 
     enemies.forEach(enemy => {
-        if (isColliding(player, enemy)) {
-            hitPlayer();
-        }
+        if (isColliding(player, enemy)) hitPlayer();
     });
 
     if (document.querySelectorAll('.point').length === 0) {
@@ -246,7 +211,7 @@ function moveEnemies() {
         let nextLeft = enemy.offsetLeft + enemy.dir.x * enemySpeed;
 
         enemy.style.top = nextTop + "px";
-        enemy.style.left = nextLeft + "px"; 
+        enemy.style.left = nextLeft + "px";
 
         let hitWall = false;
 
@@ -258,7 +223,7 @@ function moveEnemies() {
             enemy.dir = directions[Math.floor(Math.random() * directions.length)];
         }
     });
-}
+
 
 
 function movePlayer() {
@@ -294,10 +259,17 @@ function nextLevel() {
 
     alert("Level " + level);
 
-    addGhost();
-    buildMaze();
+    maze.forEach((row, r) => {
+        row.forEach((cell, c) => {
+            if (cell === 'E') maze[r][c] = ' ';
+        });
+    });
 
-    gameStarted = true;
+    addGhost();
+    addGhost();
+    addGhost();
+
+    buildMaze();
 }
 
 
@@ -305,7 +277,6 @@ function gameLoop() {
     movePlayer();
     moveEnemies();
     checkCollisions();
-
     requestAnimationFrame(gameLoop);
 }
 
@@ -313,6 +284,7 @@ gameLoop();
 
 
 function endGame(message) {
+
     gameOver = true;
     gameStarted = false;
 
@@ -322,9 +294,8 @@ function endGame(message) {
     startBtn.textContent = message;
 }
 
+// restart
 startBtn.addEventListener('click', () => {
     location.reload();
 });
-
-
-
+}
