@@ -19,6 +19,9 @@ let canMove = true;
 let player;
 let enemies;
 
+let playerTop = 0;
+let playerLeft = 0;
+
 
 let maze = [
     ['*','*','*','*','*','*','*','*','*','*'],
@@ -47,12 +50,10 @@ function addGhost() {
 
 
 function buildMaze() {
-
     main.innerHTML = '';
 
     maze.forEach(row => {
         row.forEach(cell => {
-
             const block = document.createElement('div');
             block.classList.add('block');
 
@@ -103,7 +104,6 @@ function saveScore() {
 }
 
 function displayLeaderboard() {
-
     let scores = JSON.parse(localStorage.getItem("pacmanScores")) || [];
 
     leaderboardDiv.innerHTML = "<h3>Leaderboard</h3>";
@@ -125,7 +125,6 @@ startBtn.addEventListener('click', () => {
 
 
 document.addEventListener('keydown', (e) => {
-
     if (!gameStarted || gameOver) return;
 
     player.className = '';
@@ -294,7 +293,7 @@ function endGame(message) {
     startBtn.textContent = message;
 }
 
-// restart
+
 startBtn.addEventListener('click', () => {
     location.reload();
 });
