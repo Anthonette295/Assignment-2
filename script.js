@@ -22,7 +22,7 @@ let enemies;
 let playerTop = 0;
 let playerLeft = 0;
 
-// -------------------- MAZE --------------------
+// ---------------- MAZE ----------------
 let maze = [
     ['*','*','*','*','*','*','*','*','*','*'],
     ['*','P',' ','*',' ',' ',' ',' ',' ','*'],
@@ -36,25 +36,24 @@ let maze = [
     ['*','*','*','*','*','*','*','*','*','*']
 ];
 
-// -------------------- GHOSTS --------------------
+// ---------------- GHOSTS ----------------
 function addGhost() {
-    const row = Math.floor(Math.random() * maze.length);
-    const col = Math.floor(Math.random() * maze[row].length);
+    const r = Math.floor(Math.random() * maze.length);
+    const c = Math.floor(Math.random() * maze[r].length);
 
-    if (maze[row][col] === ' ') {
-        maze[row][col] = 'E';
+    if (maze[r][c] === ' ') {
+        maze[r][c] = 'E';
     } else {
         addGhost();
     }
 }
 
-// -------------------- BUILD MAZE --------------------
+// ---------------- BUILD MAZE ----------------
 function buildMaze() {
     main.innerHTML = '';
 
     maze.forEach(row => {
         row.forEach(cell => {
-
             const block = document.createElement('div');
             block.classList.add('block');
 
@@ -70,20 +69,21 @@ function buildMaze() {
     player = document.querySelector('#player');
     enemies = document.querySelectorAll('.enemy');
 
-    // RESET POSITION SAFELY
-    playerTop = player.offsetTop;
-    playerLeft = player.offsetLeft;
+    if (player) {
+        playerTop = player.offsetTop;
+        playerLeft = player.offsetLeft;
+    }
 
     enemies.forEach(e => e.dir = null);
 }
 
-// init ghosts
+// init
 addGhost();
 addGhost();
 addGhost();
 buildMaze();
 
-// -------------------- UI --------------------
+// ---------------- UI ----------------
 const livesDisplay = document.createElement('div');
 livesDisplay.classList.add('lives');
 document.body.appendChild(livesDisplay);
@@ -93,7 +93,12 @@ function updateLives() {
 }
 updateLives();
 
-// -------------------- SCOREBOARD --------------------
+// ---------------- SCORE ----------------
+function updateScore() {
+    if (scoreDisplay) scoreDisplay.textContent = "Score: " + score;
+}
+
+// ---------------- LEADERBOARD ----------------
 function saveScore() {
     const name = prompt("Enter your name:");
     if (!name) return;
@@ -101,12 +106,10 @@ function saveScore() {
     let scores = JSON.parse(localStorage.getItem("pacmanScores")) || [];
 
     scores.push({ name, score });
-
-    scores.sort((a, b) => b.score - a.score);
-    scores = scores.slice(0, 5);
+    scores.sort((a,b) => b.score - a.score);
+    scores = scores.slice(0,5);
 
     localStorage.setItem("pacmanScores", JSON.stringify(scores));
-
     displayLeaderboard();
 }
 
@@ -115,37 +118,50 @@ function displayLeaderboard() {
 
     leaderboardDiv.innerHTML = "<h3>Leaderboard</h3>";
 
-    scores.forEach((entry, i) => {
+    scores.forEach((e,i) => {
         const p = document.createElement("p");
-        p.textContent = `${i + 1}. ${entry.name} - ${entry.score}`;
+        p.textContent = `${i+1}. ${e.name} - ${e.score}`;
         leaderboardDiv.appendChild(p);
     });
 }
 
 displayLeaderboard();
 
-// -------------------- START --------------------
+// ---------------- START ----------------
 startBtn.addEventListener('click', () => {
     gameStarted = true;
     gameOver = false;
     startBtn.style.display = 'none';
 });
 
-// -------------------- CONTROLS --------------------
+// ---------------- CONTROLS ----------------
 document.addEventListener('keydown', (e) => {
     if (!gameStarted || gameOver) return;
 
-    player.className = '';
-    player.id = 'player';
+    if (!player) return;
 
-    if (e.key === 'ArrowUp') currentDirection = { x: 0, y: -1 };
-    if (e.key === 'ArrowDown') currentDirection = { x: 0, y: 1 };
-    if (e.key === 'ArrowLeft') currentDirection = { x: -1, y: 0 };
-    if (e.key === 'ArrowRight') currentDirection = { x: 1, y: 0 };
+    player.className = '';
+
+    if (e.key === 'ArrowUp') {
+        currentDirection = {x:0,y:-1};
+        player.classList.add('up');
+    }
+    if (e.key === 'ArrowDown') {
+        currentDirection = {x:0,y:1};
+        player.classList.add('down');
+    }
+    if (e.key === 'ArrowLeft') {
+        currentDirection = {x:-1,y:0};
+        player.classList.add('left');
+    }
+    if (e.key === 'ArrowRight') {
+        currentDirection = {x:1,y:0};
+        player.classList.add('right');
+    }
 });
 
-// -------------------- COLLISION --------------------
-function isColliding(a, b) {
+// ---------------- COLLISION ----------------
+function isColliding(a,b) {
     const r1 = a.getBoundingClientRect();
     const r2 = b.getBoundingClientRect();
 
@@ -157,9 +173,8 @@ function isColliding(a, b) {
     );
 }
 
-// -------------------- HIT --------------------
+// ---------------- HIT ----------------
 function hitPlayer() {
-
     if (!canMove) return;
 
     lives--;
@@ -176,14 +191,14 @@ function hitPlayer() {
     if (lives <= 0) endGame("Game Over");
 }
 
-// -------------------- COLLISIONS --------------------
+// ---------------- COLLISIONS ----------------
 function checkCollisions() {
 
     document.querySelectorAll('.point').forEach(point => {
         if (isColliding(player, point)) {
             point.remove();
             score++;
-            if (scoreDisplay) scoreDisplay.textContent = "Score: " + score;
+            updateScore();
         }
     });
 
@@ -196,22 +211,21 @@ function checkCollisions() {
     }
 }
 
-// -------------------- ENEMIES --------------------
+// ---------------- ENEMIES ----------------
 const directions = [
-    { x: 0, y: -1 },
-    { x: 0, y: 1 },
-    { x: -1, y: 0 },
-    { x: 1, y: 0 }
+    {x:0,y:-1},
+    {x:0,y:1},
+    {x:-1,y:0},
+    {x:1,y:0}
 ];
 
 function moveEnemies() {
-
     if (gameOver) return;
 
     enemies.forEach(enemy => {
 
         if (!enemy.dir) {
-            enemy.dir = directions[Math.floor(Math.random() * directions.length)];
+            enemy.dir = directions[Math.floor(Math.random()*4)];
         }
 
         let nextTop = enemy.offsetTop + enemy.dir.y * enemySpeed;
@@ -222,17 +236,17 @@ function moveEnemies() {
 
         let hitWall = false;
 
-        document.querySelectorAll('.wall').forEach(wall => {
-            if (isColliding(enemy, wall)) hitWall = true;
+        document.querySelectorAll('.wall').forEach(w => {
+            if (isColliding(enemy,w)) hitWall = true;
         });
 
         if (hitWall) {
-            enemy.dir = directions[Math.floor(Math.random() * directions.length)];
+            enemy.dir = directions[Math.floor(Math.random()*4)];
         }
     });
 }
 
-// -------------------- PLAYER --------------------
+// ---------------- PLAYER ----------------
 function movePlayer() {
 
     if (!gameStarted || gameOver) return;
@@ -240,35 +254,29 @@ function movePlayer() {
     let nextTop = playerTop + currentDirection.y * speed;
     let nextLeft = playerLeft + currentDirection.x * speed;
 
-    player.style.top = nextTop + "px";
-    player.style.left = nextLeft + "px";
-
     let hitWall = false;
 
-    document.querySelectorAll('.wall').forEach(wall => {
-        if (isColliding(player, wall)) hitWall = true;
+    document.querySelectorAll('.wall').forEach(w => {
+        if (isColliding(player,w)) hitWall = true;
     });
 
     if (!hitWall) {
         playerTop = nextTop;
         playerLeft = nextLeft;
-    } else {
         player.style.top = playerTop + "px";
         player.style.left = playerLeft + "px";
     }
 }
 
-// -------------------- LEVEL --------------------
+// ---------------- LEVEL ----------------
 function nextLevel() {
-
     level++;
     score += 100;
+    updateScore();
 
-    alert("Level " + level);
-
-    maze.forEach((row, r) => {
-        row.forEach((cell, c) => {
-            if (cell === 'E') maze[r][c] = ' ';
+    maze.forEach(r=>{
+        r.forEach((c,i)=>{
+            if (c === 'E') r[i] = ' ';
         });
     });
 
@@ -279,29 +287,27 @@ function nextLevel() {
     buildMaze();
 }
 
-// -------------------- GAME LOOP --------------------
+// ---------------- LOOP ----------------
 function gameLoop() {
     movePlayer();
     moveEnemies();
     checkCollisions();
     requestAnimationFrame(gameLoop);
 }
-
 gameLoop();
 
-// -------------------- GAME OVER --------------------
-function endGame(message) {
-
+// ---------------- GAME OVER ----------------
+function endGame(msg) {
     gameOver = true;
     gameStarted = false;
 
     saveScore();
 
     startBtn.style.display = 'block';
-    startBtn.textContent = message;
+    startBtn.textContent = msg;
 }
 
-// -------------------- RESTART --------------------
+// ---------------- RESTART ----------------
 startBtn.addEventListener('click', () => {
     location.reload();
 });
