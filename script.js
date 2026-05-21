@@ -193,19 +193,15 @@ function checkCollisions() {
 
     document.querySelectorAll('.point').forEach(point => {
 
-        if (isColliding(player, point))
+        if (isColliding(player, point)) {
 
             point.remove();
 
             score++;
 
             scoreDisplay.textContent = "Score: " + score;
+        }
     });
-}
-
-    if (document.querySelectorAll('.point').length === 0) {
-        nextLevel();
-    }
 
     enemies.forEach(enemy => {
 
@@ -213,6 +209,11 @@ function checkCollisions() {
             hitPlayer();
         }
     });
+
+    if (document.querySelectorAll('.point').length === 0) {
+        nextLevel();
+    }
+}
 
     const directions = [
         { x: 0, y: -1},
@@ -321,7 +322,7 @@ function endGame(message) {
     saveScore();
 
     startBtn.style.display = 'block';
-    
+
     startBtn.textContent = message;
 }
 
