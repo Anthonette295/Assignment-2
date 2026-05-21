@@ -223,7 +223,7 @@ function moveEnemies() {
             enemy.dir = directions[Math.floor(Math.random() * directions.length)];
         }
     });
-
+}
 
 
 function movePlayer() {
@@ -298,4 +298,3 @@ function endGame(message) {
 startBtn.addEventListener('click', () => {
     location.reload();
 });
-}
