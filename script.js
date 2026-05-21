@@ -8,10 +8,12 @@ const scoreDisplay = document.querySelector('.score p');
 const leaderboardDiv = document.querySelector('.leaderboard');
 
 let speed = 2;
+let enemySpeed = 1.5;
+
 let score = 0; 
 let lives = 3;
 let level = 1;
-let enemyCount = 3;
+
 
 let currentDirection = {x: 0, y: 0};
 let canMove = true;
@@ -43,19 +45,22 @@ function addGhost() {
 
    }
 }
-    addGhost();
-    addGhost();
-    addGhost();
+addGhost();
+addGhost();
+addGhost();
 
-
+function buildMaze() {
+    main.innerHTML = '';
+}
 
 // Populates the maze
-maze.forEach((y) => {
-    y.forEach((x) => {
+maze.forEach((row) => {
+    row.forEach((cell) => {
+
         let block = document.createElement('div')
         block.classList = 'block'
 
-        switch (x) {
+        switch (cell) {
             case '*':
                 block.classList.add('wall')
                 break;
@@ -73,7 +78,11 @@ maze.forEach((y) => {
     });
 });
 
+player = document.querySelector('#player');
+enemies = document.querySelectorAll('.enemy');
+
 buildMaze();
+
 
 let player = document.querySelector('#player');
 let enemies = document.querySelectorAll('.enemy');
@@ -91,15 +100,18 @@ function updateLives() {
 
 updateLives();
 
+
 function saveScore() {
     const name = prompt("Enter your name:");
 
     if (!name) return;
 
     let scores = JSON.parse(localStorage.getItem("pacmanScores")) || [];
+
     scores.push({ name, score});
 
     scores.sort((a,b) => b.score - a.score);
+
     scores = scores.slice(0,5);
 
     localStorage.setItem("pacmanScores", JSON.stringify(scores));
@@ -114,7 +126,9 @@ function displayLeaderboard() {
 
     scores.forEach((entry, i) => {
         const p = document.createElement("p");
+
         p.textContent = `${i + 1}. ${entry.name} - ${entry.score}`;
+
         leaderboardDiv.appendChild(p);
     });
 }
@@ -128,6 +142,7 @@ startBtn.addEventListener('click', () => {
 });
 
 document.addEventListener('keydown', (e) => {
+
     if (!gameStarted || gameOver) return;
 
     if (e.key === 'ArrowUp') currentDirection = { x:0, y: -1};
@@ -150,39 +165,50 @@ function isColliding(a, b) {
 }
 
 function hitPlayer() {
+
     if (!canMove) return;
 
     lives--;
+
     updateLives();
 
     player.classList.add('hit');
+
     canMove = false;
 
     setTimeout(() => {
+
         player.classList.remove('hit');
+
         canMove = true;
+
     }, 1500);
 
     if (lives <= 0) {
-        endGame("Game Over! Restart?");
+        endGame("Game Over!");
     }
 }
 
 function checkCollisions() {
+
     document.querySelectorAll('.point').forEach(point => {
+
         if (isColliding(player, point))
+
             point.remove();
+
             score++;
+
             scoreDisplay.textContent = "Score: " + score;
     });
 }
 
     if (document.querySelectorAll('.point').length === 0) {
-        gameStarted = false;
         nextLevel();
     }
 
     enemies.forEach(enemy => {
+
         if (isColliding(player, enemy)) {
             hitPlayer();
         }
@@ -196,9 +222,11 @@ function checkCollisions() {
     ];
 
     function moveEnemies() {
+
         if (gameOver) return;
 
-        moveEnemies.forEach(enemy => {
+        enemies.forEach(enemy => {
+
             if(!enemy.dir) {
                 enemy.dir = directions[Math.floor(Math.random() * directions.length)];
             }
@@ -209,15 +237,16 @@ function checkCollisions() {
             enemy.style.top = nextTop + "px";
             enemy.style.top = nextLeft + "px";
 
-            let hitwall = false;
+            let hitWall = false;
 
             document.querySelectorAll('.wall').forEach(wall => {
+
                 if (isColliding(enemy, wall)) {
                     hitWall = true;
                 }
             });
 
-            if (hitwall) {
+            if (hitWall) {
                 enemy.dir = directions[Math.floor(Math.random() * directions.length)];
             }
         });
@@ -233,17 +262,21 @@ function movePlayer() {
     player.style.top = nextTop + 'px';
     player.style.left = nextLeft + 'px';
 
-    let hitwall = false;
+    let hitWall = false;
 
     document.querySelectorAll('.wall').forEach(wall => {
+
         if (isColliding(player, wall)) {
-            hitwall = true;
+            hitWall = true;
         }
     });
 
-    if (!hitwall) {
+    if (!hitWall) {
+
         playerTop = nextTop;
         playerLeft = nextLeft;
+
+
     } else {
 
         player.style.top = playerTop + 'px';
@@ -251,26 +284,44 @@ function movePlayer() {
     }
 } 
 
-function gameLoop() {
-    movePlayer();
-    moveEnemies();
-    checkCollisions();
+function nextLevel() {
 
+    level++;
+
+    score += 100;
+
+    alert("Level" + level);
+
+    addGhost();
+
+    buildMaze();
+
+    gameStarted = true;
+}
+
+function gameLoop() {
+
+    movePlayer();
+
+    moveEnemies();
+
+    checkCollisions();
 
     requestAnimationFrame(gameLoop);
 }
 
-
-move();
 gameLoop();
 
 function endGame(message) {
+
     gameOver = true;
+
     gameStarted = false;
 
     saveScore();
 
     startBtn.style.display = 'block';
+    
     startBtn.textContent = message;
 }
 
