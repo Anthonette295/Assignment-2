@@ -2,7 +2,7 @@ let gameStarted = false;
 let gameOver = false;
 
 const main = document.querySelector('main');
-const startBtn = document.querySelector('#start');
+const startBtn = document.querySelector('.start');
 const scoreDisplay = document.querySelector('.score p');
 const leaderboardDiv = document.querySelector('.leaderboard');
 
@@ -257,12 +257,18 @@ function movePlayer() {
     let hitWall = false;
 
     document.querySelectorAll('.wall').forEach(w => {
-        if (isColliding(player,w)) hitWall = true;
+        if (isColliding(player,w)) {
+            hitWall = true;
+        }
     });
 
     if (!hitWall) {
         playerTop = nextTop;
         playerLeft = nextLeft;
+
+    }
+
+     else{   
         player.style.top = playerTop + "px";
         player.style.left = playerLeft + "px";
     }
