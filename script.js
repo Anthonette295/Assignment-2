@@ -22,7 +22,7 @@ let enemies;
 let playerTop = 0;
 let playerLeft = 0;
 
-
+// -------------------- MAZE --------------------
 let maze = [
     ['*','*','*','*','*','*','*','*','*','*'],
     ['*','P',' ','*',' ',' ',' ',' ',' ','*'],
@@ -36,7 +36,7 @@ let maze = [
     ['*','*','*','*','*','*','*','*','*','*']
 ];
 
-
+// -------------------- GHOSTS --------------------
 function addGhost() {
     const row = Math.floor(Math.random() * maze.length);
     const col = Math.floor(Math.random() * maze[row].length);
@@ -48,12 +48,13 @@ function addGhost() {
     }
 }
 
-
+// -------------------- BUILD MAZE --------------------
 function buildMaze() {
     main.innerHTML = '';
 
     maze.forEach(row => {
         row.forEach(cell => {
+
             const block = document.createElement('div');
             block.classList.add('block');
 
@@ -68,15 +69,21 @@ function buildMaze() {
 
     player = document.querySelector('#player');
     enemies = document.querySelectorAll('.enemy');
+
+    // RESET POSITION SAFELY
+    playerTop = player.offsetTop;
+    playerLeft = player.offsetLeft;
+
+    enemies.forEach(e => e.dir = null);
 }
 
-
+// init ghosts
 addGhost();
 addGhost();
 addGhost();
 buildMaze();
 
-
+// -------------------- UI --------------------
 const livesDisplay = document.createElement('div');
 livesDisplay.classList.add('lives');
 document.body.appendChild(livesDisplay);
@@ -86,7 +93,7 @@ function updateLives() {
 }
 updateLives();
 
-
+// -------------------- SCOREBOARD --------------------
 function saveScore() {
     const name = prompt("Enter your name:");
     if (!name) return;
@@ -117,13 +124,14 @@ function displayLeaderboard() {
 
 displayLeaderboard();
 
-
+// -------------------- START --------------------
 startBtn.addEventListener('click', () => {
     gameStarted = true;
+    gameOver = false;
     startBtn.style.display = 'none';
 });
 
-
+// -------------------- CONTROLS --------------------
 document.addEventListener('keydown', (e) => {
     if (!gameStarted || gameOver) return;
 
@@ -136,7 +144,7 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight') currentDirection = { x: 1, y: 0 };
 });
 
-
+// -------------------- COLLISION --------------------
 function isColliding(a, b) {
     const r1 = a.getBoundingClientRect();
     const r2 = b.getBoundingClientRect();
@@ -149,7 +157,7 @@ function isColliding(a, b) {
     );
 }
 
-
+// -------------------- HIT --------------------
 function hitPlayer() {
 
     if (!canMove) return;
@@ -168,7 +176,7 @@ function hitPlayer() {
     if (lives <= 0) endGame("Game Over");
 }
 
-
+// -------------------- COLLISIONS --------------------
 function checkCollisions() {
 
     document.querySelectorAll('.point').forEach(point => {
@@ -188,7 +196,7 @@ function checkCollisions() {
     }
 }
 
-
+// -------------------- ENEMIES --------------------
 const directions = [
     { x: 0, y: -1 },
     { x: 0, y: 1 },
@@ -224,7 +232,7 @@ function moveEnemies() {
     });
 }
 
-
+// -------------------- PLAYER --------------------
 function movePlayer() {
 
     if (!gameStarted || gameOver) return;
@@ -250,7 +258,7 @@ function movePlayer() {
     }
 }
 
-
+// -------------------- LEVEL --------------------
 function nextLevel() {
 
     level++;
@@ -271,7 +279,7 @@ function nextLevel() {
     buildMaze();
 }
 
-
+// -------------------- GAME LOOP --------------------
 function gameLoop() {
     movePlayer();
     moveEnemies();
@@ -281,7 +289,7 @@ function gameLoop() {
 
 gameLoop();
 
-
+// -------------------- GAME OVER --------------------
 function endGame(message) {
 
     gameOver = true;
@@ -293,7 +301,7 @@ function endGame(message) {
     startBtn.textContent = message;
 }
 
-
+// -------------------- RESTART --------------------
 startBtn.addEventListener('click', () => {
     location.reload();
 });
