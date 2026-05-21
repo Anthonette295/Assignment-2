@@ -1,4 +1,3 @@
-
 let gameStarted = false;
 let gameOver = false;
 
@@ -10,78 +9,68 @@ const leaderboardDiv = document.querySelector('.leaderboard');
 let speed = 2;
 let enemySpeed = 1.5;
 
-let score = 0; 
+let score = 0;
 let lives = 3;
 let level = 1;
 
-
-let currentDirection = {x: 0, y: 0};
+let currentDirection = { x: 0, y: 0 };
 let canMove = true;
 
-// Player = 'P', Wall = '*', Enemy = 'E', Point = ' '
+
 let maze = [
-    ['*', '*', '*', '*', '*', '*', '*', '*', '*', '*'],
-    ['*', 'P', ' ', '*', ' ', ' ', ' ', ' ', ' ', '*'],
-    ['*', ' ', ' ', ' ', ' ', ' ', ' ', '*', '*', '*'],
-    ['*', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '*'],
-    ['*', ' ', '*', '*', ' ', ' ', ' ', ' ', ' ', '*'],
-    ['*', ' ', ' ', ' ', ' ', ' ', ' ', '*', '*', '*'],
-    ['*', ' ', ' ', '*', ' ', ' ', ' ', ' ', ' ', '*'],
-    ['*', ' ', ' ', ' ', ' ', ' ', ' ', '*', ' ', '*'],
-    ['*', ' ', '*', ' ', ' ', ' ', ' ', ' ', ' ', '*'],
-    ['*', '*', '*', '*', '*', '*', '*', '*', '*', '*']
+    ['*','*','*','*','*','*','*','*','*','*'],
+    ['*','P',' ','*',' ',' ',' ',' ',' ','*'],
+    ['*',' ',' ',' ',' ',' ',' ','*','*','*'],
+    ['*',' ',' ',' ',' ',' ',' ',' ',' ','*'],
+    ['*',' ','*','*',' ',' ',' ',' ',' ','*'],
+    ['*',' ',' ',' ',' ',' ',' ','*','*','*'],
+    ['*',' ',' ','*',' ',' ',' ',' ',' ','*'],
+    ['*',' ',' ',' ',' ',' ',' ','*',' ','*'],
+    ['*',' ','*',' ',' ',' ',' ',' ',' ','*'],
+    ['*','*','*','*','*','*','*','*','*','*']
 ];
+
 
 function addGhost() {
     const row = Math.floor(Math.random() * maze.length);
-    const column = Math.floor(Math.random() * maze[row].length);
+    const col = Math.floor(Math.random() * maze[row].length);
 
-
-    if(maze[row][column] === ' ') {
-       maze[row][column] = 'E'; 
-   } else {
-       addGhost();
-
-   }
+    if (maze[row][col] === ' ') {
+        maze[row][col] = 'E';
+    } else {
+        addGhost();
+    }
 }
 
-addGhost();
-addGhost();
-addGhost();
 
 function buildMaze() {
     main.innerHTML = '';
+
+    maze.forEach(row => {
+        row.forEach(cell => {
+
+            const block = document.createElement('div');
+            block.classList.add('block');
+
+            if (cell === '*') block.classList.add('wall');
+            else if (cell === 'P') block.id = 'player';
+            else if (cell === 'E') block.classList.add('enemy');
+            else block.classList.add('point');
+
+            main.appendChild(block);
+        });
+    });
+
+    player = document.querySelector('#player');
+    enemies = document.querySelectorAll('.enemy');
 }
 
-// Populates the maze
-maze.forEach((row) => {
-    row.forEach((cell) => {
-
-        let block = document.createElement('div')
-        block.classList = 'block'
-
-        switch (cell) {
-            case '*':
-                block.classList.add('wall')
-                break;
-            case 'P':
-                block.id = 'player';
-                break;
-            case 'E':
-                block.classList.add('enemy');
-                break
-            default:
-                block.classList.add('point')
-        }
-        
-        main.appendChild(block)
-    });
-});
-
-player = document.querySelector('#player');
-enemies = document.querySelectorAll('.enemy');
+addGhost();
+addGhost();
+addGhost();
 
 buildMaze();
+
 
 let player = document.querySelector('#player');
 let enemies = document.querySelectorAll('.enemy');
@@ -89,32 +78,29 @@ let enemies = document.querySelectorAll('.enemy');
 let playerTop = 0;
 let playerLeft = 0;
 
+
 const livesDisplay = document.createElement('div');
 livesDisplay.classList.add('lives');
 document.body.appendChild(livesDisplay);
 
 function updateLives() {
-    livesDisplay.textContent = "Lives:" + lives;
+    livesDisplay.textContent = "Lives: " + lives;
 }
-
 updateLives();
 
 
 function saveScore() {
     const name = prompt("Enter your name:");
-
     if (!name) return;
 
     let scores = JSON.parse(localStorage.getItem("pacmanScores")) || [];
 
-    scores.push({ name, score});
+    scores.push({ name, score });
 
-    scores.sort((a,b) => b.score - a.score);
-
-    scores = scores.slice(0,5);
+    scores.sort((a, b) => b.score - a.score);
+    scores = scores.slice(0, 5);
 
     localStorage.setItem("pacmanScores", JSON.stringify(scores));
-
     displayLeaderboard();
 }
 
@@ -125,9 +111,7 @@ function displayLeaderboard() {
 
     scores.forEach((entry, i) => {
         const p = document.createElement("p");
-
         p.textContent = `${i + 1}. ${entry.name} - ${entry.score}`;
-
         leaderboardDiv.appendChild(p);
     });
 }
@@ -139,6 +123,7 @@ startBtn.addEventListener('click', () => {
     gameStarted = true;
     startBtn.style.display = 'none';
 });
+
 
 document.addEventListener('keydown', (e) => {
 
@@ -168,33 +153,22 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-document.getElementById('lbttn').addEventListener('click', () => {
+
+document.getElementById('lbttn').onclick = () => {
     currentDirection = { x: -1, y: 0 };
-    player.className = '';
-    player.id = 'player';
-    player.classList.add('left');
-});
+};
 
-document.getElementById('rbttn').addEventListener('click', () => {
+document.getElementById('rbttn').onclick = () => {
     currentDirection = { x: 1, y: 0 };
-    player.className = '';
-    player.id = 'player';
-    player.classList.add('right');
-});
+};
 
-document.getElementById('ubttn').addEventListener('click', () => {
+document.getElementById('ubttn').onclick = () => {
     currentDirection = { x: 0, y: -1 };
-    player.className = '';
-    player.id = 'player';
-    player.classList.add('up');
-});
+};
 
-document.getElementById('dbttn').addEventListener('click', () => {
+document.getElementById('dbttn').onclick = () => {
     currentDirection = { x: 0, y: 1 };
-    player.className = '';
-    player.id = 'player';
-    player.classList.add('down');
-});
+};
 
 
 function isColliding(a, b) {
@@ -203,53 +177,43 @@ function isColliding(a, b) {
 
     return !(
         r1.right < r2.left ||
-        r1.left < r2.right ||
+        r1.left > r2.right ||
         r1.bottom < r2.top ||
         r1.top > r2.bottom
     );
 }
+
 
 function hitPlayer() {
 
     if (!canMove) return;
 
     lives--;
-
     updateLives();
 
     player.classList.add('hit');
-
     canMove = false;
 
     setTimeout(() => {
-
         player.classList.remove('hit');
-
         canMove = true;
-
     }, 1500);
 
-    if (lives <= 0) {
-        endGame("Game Over!");
-    }
+    if (lives <= 0) endGame("Game Over");
 }
+
 
 function checkCollisions() {
 
     document.querySelectorAll('.point').forEach(point => {
-
         if (isColliding(player, point)) {
-
             point.remove();
-
             score++;
-
             scoreDisplay.textContent = "Score: " + score;
         }
     });
 
     enemies.forEach(enemy => {
-
         if (isColliding(player, enemy)) {
             hitPlayer();
         }
@@ -260,97 +224,86 @@ function checkCollisions() {
     }
 }
 
-    const directions = [
-        { x: 0, y: -1},
-        { x: 0, y: 1},
-        { x: -1, y: 0},
-        { x: 1, y: 0}
-    ];
 
-    function moveEnemies() {
+const directions = [
+    { x: 0, y: -1 },
+    { x: 0, y: 1 },
+    { x: -1, y: 0 },
+    { x: 1, y: 0 }
+];
 
-        if (gameOver) return;
+function moveEnemies() {
 
-        enemies.forEach(enemy => {
+    if (gameOver) return;
 
-            if(!enemy.dir) {
-                enemy.dir = directions[Math.floor(Math.random() * directions.length)];
-            }
+    enemies.forEach(enemy => {
 
-            let nextTop = enemy.offsetTop + enemy.dir.y * enemySpeed;
-            let nextLeft = enemy.offsetLeft + enemy.dir.x * enemySpeed;
+        if (!enemy.dir) {
+            enemy.dir = directions[Math.floor(Math.random() * directions.length)];
+        }
 
-            enemy.style.top = nextTop + "px";
-            enemy.style.top = nextLeft + "px";
+        let nextTop = enemy.offsetTop + enemy.dir.y * enemySpeed;
+        let nextLeft = enemy.offsetLeft + enemy.dir.x * enemySpeed;
 
-            let hitWall = false;
+        enemy.style.top = nextTop + "px";
+        enemy.style.left = nextLeft + "px"; 
 
-            document.querySelectorAll('.wall').forEach(wall => {
+        let hitWall = false;
 
-                if (isColliding(enemy, wall)) {
-                    hitWall = true;
-                }
-            });
-
-            if (hitWall) {
-                enemy.dir = directions[Math.floor(Math.random() * directions.length)];
-            }
+        document.querySelectorAll('.wall').forEach(wall => {
+            if (isColliding(enemy, wall)) hitWall = true;
         });
-    }
+
+        if (hitWall) {
+            enemy.dir = directions[Math.floor(Math.random() * directions.length)];
+        }
+    });
+}
 
 
 function movePlayer() {
-    if (! gameStarted  || gameOver ) return;
+
+    if (!gameStarted || gameOver) return;
 
     let nextTop = playerTop + currentDirection.y * speed;
     let nextLeft = playerLeft + currentDirection.x * speed;
 
-    player.style.top = nextTop + 'px';
-    player.style.left = nextLeft + 'px';
+    player.style.top = nextTop + "px";
+    player.style.left = nextLeft + "px";
 
     let hitWall = false;
 
     document.querySelectorAll('.wall').forEach(wall => {
-
-        if (isColliding(player, wall)) {
-            hitWall = true;
-        }
+        if (isColliding(player, wall)) hitWall = true;
     });
 
     if (!hitWall) {
-
         playerTop = nextTop;
         playerLeft = nextLeft;
-
-
     } else {
-
-        player.style.top = playerTop + 'px';
-        player.style.left = playerLeft + 'px';
+        player.style.top = playerTop + "px";
+        player.style.left = playerLeft + "px";
     }
-} 
+}
+
 
 function nextLevel() {
 
     level++;
-
     score += 100;
 
-    alert("Level" + level);
+    alert("Level " + level);
 
     addGhost();
-
     buildMaze();
 
     gameStarted = true;
 }
 
+
 function gameLoop() {
-
     movePlayer();
-
     moveEnemies();
-
     checkCollisions();
 
     requestAnimationFrame(gameLoop);
@@ -358,16 +311,14 @@ function gameLoop() {
 
 gameLoop();
 
+
 function endGame(message) {
-
     gameOver = true;
-
     gameStarted = false;
 
     saveScore();
 
     startBtn.style.display = 'block';
-
     startBtn.textContent = message;
 }
 
