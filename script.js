@@ -168,6 +168,34 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+document.getElementById('lbttn').addEventListener('click', () => {
+    currentDirection = { x: -1, y: 0 };
+    player.className = '';
+    player.id = 'player';
+    player.classList.add('left');
+});
+
+document.getElementById('rbttn').addEventListener('click', () => {
+    currentDirection = { x: 1, y: 0 };
+    player.className = '';
+    player.id = 'player';
+    player.classList.add('right');
+});
+
+document.getElementById('ubttn').addEventListener('click', () => {
+    currentDirection = { x: 0, y: -1 };
+    player.className = '';
+    player.id = 'player';
+    player.classList.add('up');
+});
+
+document.getElementById('dbttn').addEventListener('click', () => {
+    currentDirection = { x: 0, y: 1 };
+    player.className = '';
+    player.id = 'player';
+    player.classList.add('down');
+});
+
 
 function isColliding(a, b) {
     const r1 = a.getBoundingClientRect();
