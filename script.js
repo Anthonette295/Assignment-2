@@ -39,12 +39,12 @@ function addGhost() {
 
     if(maze[row][column] === ' ') {
        maze[row][column] = 'E'; 
-
    } else {
        addGhost();
 
    }
 }
+
 addGhost();
 addGhost();
 addGhost();
@@ -82,7 +82,6 @@ player = document.querySelector('#player');
 enemies = document.querySelectorAll('.enemy');
 
 buildMaze();
-
 
 let player = document.querySelector('#player');
 let enemies = document.querySelectorAll('.enemy');
