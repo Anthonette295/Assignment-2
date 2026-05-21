@@ -144,10 +144,28 @@ document.addEventListener('keydown', (e) => {
 
     if (!gameStarted || gameOver) return;
 
-    if (e.key === 'ArrowUp') currentDirection = { x:0, y: -1};
-    if (e.key === 'ArrowDown') currentDirection = { x: 0, y: 1};
-    if (e.key === 'ArrowLeft') currentDirection = { x: -1, y: 0};
-    if (e.key === 'ArrowRight') currentDirection = { x: 1, y: 0};
+    player.className = '';
+    player.id = 'player';
+
+    if (e.key === 'ArrowUp') {
+        currentDirection = { x: 0, y: -1 };
+        player.classList.add('up');
+    }
+
+    if (e.key === 'ArrowDown') {
+        currentDirection = { x: 0, y: 1 };
+        player.classList.add('down');
+    }
+
+    if (e.key === 'ArrowLeft') {
+        currentDirection = { x: -1, y: 0 };
+        player.classList.add('left');
+    }
+
+    if (e.key === 'ArrowRight') {
+        currentDirection = { x: 1, y: 0 };
+        player.classList.add('right');
+    }
 });
 
 
